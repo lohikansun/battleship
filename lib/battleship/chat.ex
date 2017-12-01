@@ -5,16 +5,12 @@ def new do
   %{
     players: [],
     messages: [],
-    gameActive: false
+    gameActive: false,
+    challenged: "",
+    challenger: ""
   }
 end
 
-def chat_view(chat) do
-  %{
-    players: chat.players,
-    messages: chat.messages
-  }
-end
 
 def add_player(chat, player) do
   p = chat.players
@@ -34,6 +30,18 @@ def add_message(chat, message, user) do
   messages= chat.messages
   messages = messages ++ [m]
   Map.put(chat, :messages, messages)
+end
+
+def start_game(chat, challenger, challenged) do
+  chat = Map.put(chat, :challenged, challenged)
+  chat = Map.put(chat, :challenger, challenger)
+  Map.put(chat, :gameActive, true)
+end
+
+def end_game(chat) do
+  chat = Map.put(chat, :challenged, "")
+  chat = Map.put(chat, :challenger, "")
+  Map.put(chat, :gameActive, false)
 end
 
 end

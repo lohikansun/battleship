@@ -1,15 +1,24 @@
+require IEx
 defmodule BattleshipWeb.PlayerChannel do
   use BattleshipWeb, :channel
-  alias Battleship.GameAgent
-  
+  alias Battleship.Agent
+  alias Battleship.Game
+
   def join("player:" <> name, payload, socket) do
     if authorized?(payload) do
+      gameName = payload <> "Game"
       # Game agent logic  Modeled after NatTuck hangman application
-      game = GameAgent.get(name) || Game.new()
-      GameAgent.put(name, game)
+      game = Agent.get(gameName)
+      if game do
+        game = Game.add_player(game, name)
+      else
+        game = Game.new(name)
+      end
+      Agent.put(gameName, game)
       socket = socket
-      |> assign(:name, name)
-      {:ok, socket}
+      |> assign(:gameName, gameName)
+      |> assign(:player, name)
+      {:ok, Game.player_game_state(game, name), socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -17,8 +26,16 @@ defmodule BattleshipWeb.PlayerChannel do
 
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
-  def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
+  def handle_in("accept", payload, socket) do
+    gameName = socket.assigns[:gameName]
+    player = socket.assigns[:player]
+    game = Agent.get(gameName)
+    other = Game.other_name(game, player)
+    game = Game.accept(game)
+    Agent.put(gameName, game)
+    BattleshipWeb.Endpoint.broadcast! "player:" <> other, "start", Game.player_game_state(game, other)
+    #broadcast socket, "test", %{}
+    {:reply, {:ok, Game.player_game_state(game, player)}, socket}
   end
 
   # It is also common to receive messages from the client and

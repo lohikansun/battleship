@@ -10,7 +10,7 @@ defmodule BattleshipWeb.TableChannel do
       Agent.put(name, chat)
       socket = socket
       |> assign(:table_name, name)
-      {:ok, Chat.chat_view(chat), socket}
+      {:ok, chat, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -37,6 +37,28 @@ defmodule BattleshipWeb.TableChannel do
     Agent.put(table, chat)
     broadcast socket, "state", chat
     {:reply, {:ok, chat}, socket}
+  end
+
+  def handle_in("challenge", %{"player" => player}, socket) do
+    user = socket.assigns[:user]
+    table = socket.assigns[:table_name]
+    chat = Agent.get(table)
+    chat = Chat.start_game(chat, user, player)
+    Agent.put(table, chat)
+    broadcast socket, "challenge", chat
+    {:reply, {:ok, chat}, socket}
+
+  end
+
+  def handle_in("endGame",params, socket) do
+    user = socket.assigns[:user]
+    table = socket.assigns[:table_name]
+    chat = Agent.get(table)
+    chat = Chat.end_game(chat)
+    Agent.put(table, chat)
+    broadcast socket, "end", chat
+    {:reply, {:ok, chat}, socket}
+
   end
 
   def terminate(reason, socket) do

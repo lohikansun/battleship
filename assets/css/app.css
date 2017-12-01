@@ -11,6 +11,22 @@
   padding: 0;
 }
 
+.ship {
+  background-color:black;
+}
+
+.hit {
+  background-color:red;
+}
+
+.miss {
+  background-color:greenyellow;
+}
+
+.water {
+  background-color:blue;
+}
+
 .challenge {
   margin-left: 10px;
 }
