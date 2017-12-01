@@ -1,0 +1,16 @@
+/* This file is for your main application css. */
+.gridButton
+{
+   display: block;
+   width: 100%;       /* set to 100% */
+   height: 100%;      /* set to 100% */
+}
+
+.cell {
+  height: 100%;
+  padding: 0;
+}
+
+.challenge {
+  margin-left: 10px;
+}

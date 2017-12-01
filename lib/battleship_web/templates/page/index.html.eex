@@ -1,0 +1,25 @@
+<div class="card card-body" style="width: 20rem;" id="table">
+  <%= if @user_name do %>
+  <h3 class="card-title">Name: <span class="text-light">
+    <%= @user_name %>
+  </span></h3>
+
+    <%= if @table_name do %>
+    <h3 class="card-title">Table: <span class="text-light">
+      <%= @table_name %>
+    </span></h3>
+
+      <div id="chat" ></div>
+    <% else %>
+    <%= form_for @conn, page_path(@conn, :table), fn f -> %>
+      <%= text_input f, :table %>
+      <%= submit "Create or Join Table" %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= form_for @conn, page_path(@conn, :name), fn f -> %>
+      <%= text_input f, :name %>
+      <%= submit "Set Name" %>
+      <% end %>
+<% end %>
+</div>
