@@ -6,23 +6,29 @@ defmodule Battleship.Game do
       started: false,
       accepted: false,
       player1: Player.new(player),
-      player2: %{}
+      player2: Player.new("fake")
     }
 end
   def player_game_state(game, player_name) do
-    player = nil
+    you = nil
+    them = nil
     if (game.player1.name == player_name) do
-      player = game.player1
+      you = game.player1
+      them = game.player2
     else
-      player = game.player2
+      you = game.player2
+      them = game.player1
     end
     %{
       started: game.started,
-      hits: player.hits,
-      misses: player.misses,
-      ships_to_place: player.ships_to_place,
-      ships: player.ships,
-      accepted: game.accepted
+      your_hits: you.hits,
+      your_misses: you.misses,
+      their_hits: them.hits,
+      their_misses: them.misses,
+      ships_to_place: you.ships_to_place,
+      ships: you.ships,
+      accepted: game.accepted,
+      horizontal: you.horizontal
     }
   end
 
@@ -32,6 +38,21 @@ end
 
   def accept(game) do
     Map.put(game, :accepted, true)
+  end
+
+  def rotate(game, player_name) do
+    player = nil
+    key = nil
+    if (game.player1.name == player_name) do
+      player = game.player1
+      key = :player1
+    else
+      player = game.player2
+      key = :player2
+    end
+    IEx.pry
+    player = Map.put(player, :horizontal, not player.horizontal)
+    Map.put(game, key, player)
   end
 
   def other_name(game, player) do

@@ -7,6 +7,7 @@ export default class Game extends React.Component {
     super(props)
     this.state = this.props.state
     this.props.channel.on("start", this.start.bind(this))
+    this.props.channel.on("place", this.place.bind(this))
   }
 
   start(state) {
@@ -14,10 +15,14 @@ export default class Game extends React.Component {
     this.setState(state);
   }
 
+  place(state) {
+    this.setState(state);
+  }
+
   accept() {
     this.props.channel.push('accept', {})
       .receive("ok", state => {
-        this.start(state);
+        this.place(state);
       })
   }
 
@@ -27,21 +32,56 @@ export default class Game extends React.Component {
 
   }
 
-  clickCell(x, y){
-    console.log(x,y);
+  clickCell(cellKey){
+    console.log(cellKey)
+    if (this.state.started) {
+
+    }
+    else {
+    }
+  }
+
+  rotate() {
+    this.props.channel.push("rotate", {})
+      .receive("ok", state => {this.setState(state)})
   }
 
   render() {
     var page = null;
+
+    var directions = this.state.horizontal ? <p>Placing ship of length {this.state.ships_to_place[0]} horizontally. Click leftmost cell of ship on your grid to place.</p>
+  : <p>Placing ship of length {this.state.ships_to_place[0]} vertically. Click uppermost cell of ship on your grid to place.</p>
+    var placement = this.state.started ? null :
+    <div>
+      <form>
+        <div className="radio">
+          <label>
+            <input type="radio"
+              checked={this.state.horizontal} onChange={this.rotate.bind(this)} />
+            Horizontal
+          </label>
+        </div>
+        <div className="radio">
+          <label>
+            <input type="radio"
+              checked={!this.state.horizontal} onChange={this.rotate.bind(this)} />
+            Vertical
+          </label>
+        </div>
+      </form>
+      {directions}
+      </div>
+
     if (this.state.accepted){
       page =
         <div className="container">
+          <div>{placement}</div>
           <div className="row">
         <div className="col-xs-6">
-            <Table id={"Your"} ships={this.state.ships} click={this.clickCell.bind(this)}/>
+            <Table id={"Your"}  ships={this.state.ships} hits={this.state.their_hits} misses={this.state.their_misses} click={this.clickCell.bind(this)}/>
         </div>
         <div className="col-xs-6">
-          <Table id={"Their"} hits={this.state.hits} misses={this.state.misses} click={this.clickCell.bind(this)}/>
+          <Table id={"Their"} hits={this.state.your_hits} misses={this.state.your_misses} click={this.clickCell.bind(this)}/>
         </div>
     </div>
 </div>

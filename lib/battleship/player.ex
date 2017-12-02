@@ -5,7 +5,8 @@ defmodule Battleship.Player do
       ships_to_place: [5, 4, 3, 3, 2],
       ships: [],
       hits: [],
-      misses: []
+      misses: [],
+      horizontal: true
     }
 end
 end

@@ -33,16 +33,20 @@ defmodule BattleshipWeb.PlayerChannel do
     other = Game.other_name(game, player)
     game = Game.accept(game)
     Agent.put(gameName, game)
-    BattleshipWeb.Endpoint.broadcast! "player:" <> other, "start", Game.player_game_state(game, other)
+    BattleshipWeb.Endpoint.broadcast! "player:" <> other, "place", Game.player_game_state(game, other)
     #broadcast socket, "test", %{}
     {:reply, {:ok, Game.player_game_state(game, player)}, socket}
   end
 
   # It is also common to receive messages from the client and
   # broadcast to everyone in the current topic (player:lobby).
-  def handle_in("shout", payload, socket) do
-    broadcast socket, "shout", payload
-    {:noreply, socket}
+  def handle_in("rotate", payload, socket) do
+    gameName = socket.assigns[:gameName]
+    player = socket.assigns[:player]
+    game = Agent.get(gameName)
+    game = Game.rotate(game, player)
+    Agent.put(gameName, game)
+    {:reply, {:ok, Game.player_game_state(game, player)}, socket}
   end
 
   # Add authorization logic here as required.

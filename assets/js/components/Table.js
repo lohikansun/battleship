@@ -20,7 +20,8 @@ export default class Table extends React.Component {
         let cellKey = this.props.id + `cell${i}-${j}`
         let x = i;
         let y = j;
-        cell.push(<td className="cell water" onClick={() => this.props.click(x, y)} key={cellKey} id={cellKey}></td>)
+        cell.push(<td className="cell water" onClick={() => this.props.click(cellKey)}
+         key={cellKey} id={cellKey}></td>)
       }
       rows.push(<tr key={i} id={rowID}>{cell}</tr>)
     }
