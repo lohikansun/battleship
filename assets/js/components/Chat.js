@@ -54,6 +54,11 @@ export default class Chat extends React.Component {
       this.start_game();
   }
 
+  kill() {
+    this.props.channel.push("endGame", {})
+      .receive("ok", state => {this.endGame(state)})
+  }
+
   render() {
     let players = [];
     for (var i = 0; i < this.state.players.length; i++)
@@ -61,10 +66,12 @@ export default class Chat extends React.Component {
       var k = "p" + i;
       if (this.props.user != this.state.players[i])
       {
-        players.push(<li className="list-group-item" key={k}>{this.state.players[i]}{this.state.gameActive ? null : <span className="challenge"><button className="btn btn-danger" onClick={this.challenge.bind(this, this.state.players[i])}>Challenge!</button></span>}</li>);
+        players.push(<li className="list-group-item" key={k}>{this.state.players[i]}{this.state.ctive ? null : <span className="challenge"><button className="btn btn-danger" onClick={this.challenge.bind(this, this.state.players[i])}>Challenge!</button></span>}</li>);
       }
     }
 
+    var kill = this.state.gameActive ? <button className="btn btn-danger" onClick={this.kill.bind(this)}>Kill Game</button> : null
+    var lastWinner = this.state.lastWinner != "" ? <h3>Last Winner: {this.state.lastWinner}</h3> : null
     let messages = [];
     var i = 0;
     this.state.messages.forEach(function(message) {
@@ -74,6 +81,8 @@ export default class Chat extends React.Component {
     });
     return (
       <div className="card-block">
+        {lastWinner}
+        {kill}
         <h5>Other Players:</h5>
         <div><ul className="list-group">{players}</ul></div>
 

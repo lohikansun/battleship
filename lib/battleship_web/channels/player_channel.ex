@@ -53,6 +53,7 @@ defmodule BattleshipWeb.PlayerChannel do
     gameName = socket.assigns[:gameName]
     player = socket.assigns[:player]
     game = Agent.get(gameName)
+    winner = ""
     if (game.started) and (Game.turn_over?(game, player) == true) do
     else
     # Actual logic
@@ -62,14 +63,21 @@ defmodule BattleshipWeb.PlayerChannel do
     if game.player1.turn_over and game.player2.turn_over do
       game = Map.put(game, :player1, Map.put(game.player1, :turn_over, false))
       game = Map.put(game, :player2, Map.put(game.player2, :turn_over, false))
-
+      winner = Game.win?(game)
     end
     Agent.put(gameName, game)
-    BattleshipWeb.Endpoint.broadcast! "player:" <> other, "state", Game.player_game_state(game, other)
 
     end
+    if (winner == "") do
+      BattleshipWeb.Endpoint.broadcast! "player:" <> other, "state", Game.player_game_state(game, other)
+      {:reply, {:ok, Game.player_game_state(game, player)}, socket}
+    else
+      game = Map.put(game, :winner, winner)
+      Agent.put(gameName, game)
+      BattleshipWeb.Endpoint.broadcast! "player:" <> other, "end", %{}
+      {:reply, {:end, %{}}, socket}
+    end
 
-    {:reply, {:ok, Game.player_game_state(game, player)}, socket}
 
   end
 

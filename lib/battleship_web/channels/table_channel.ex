@@ -53,7 +53,11 @@ defmodule BattleshipWeb.TableChannel do
   def handle_in("endGame",params, socket) do
     user = socket.assigns[:user]
     table = socket.assigns[:table_name]
+    gameName = table <> "Game"
+    game =  Agent.get(gameName)
+    Agent.put(gameName, nil)
     chat = Agent.get(table)
+    chat = Map.put(chat, :lastWinner, game.winner)
     chat = Chat.end_game(chat)
     Agent.put(table, chat)
     broadcast socket, "end", chat

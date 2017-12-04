@@ -8,6 +8,7 @@ export default class Game extends React.Component {
     this.state = this.props.state
     this.props.channel.on("start", this.start.bind(this))
     this.props.channel.on("state", this.set_state.bind(this))
+    this.props.channel.on("end", this.end.bind(this))
   }
 
   start(state) {
@@ -24,6 +25,11 @@ export default class Game extends React.Component {
       .receive("ok", state => {
         this.set_state(state);
       })
+  }
+
+  end() {
+    this.props.tableChannel.push("endGame", {})
+      .receive("ok", state => {this.props.endGame(state)})
   }
 
   reject() {

@@ -7,6 +7,7 @@ defmodule Battleship.Game do
       accepted: false,
       player1: Player.new(player),
       player2: Player.new("fake"),
+      winner: ""
     }
 end
   def player_game_state(game, player_name) do
@@ -75,6 +76,24 @@ end
       over = game.player2.turn_over
     end
     over
+  end
+
+  def win?(game) do
+    player1Win = Enum.all?(game.player2.ships, fn(ship) -> length(ship) == 0 end)
+    player2Win = Enum.all?(game.player1.ships, fn(ship) -> length(ship) == 0 end)
+    winner = ""
+    cond do
+      player1Win and player2Win ->
+        winner = "tie"
+      player1Win ->
+        winner = game.player1.name
+      player2Win ->
+        winer = game.player2.name
+      true ->
+        winner = ""
+    end
+    
+    winner
   end
 
   def player_click(game, player_name, key) do

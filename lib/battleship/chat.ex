@@ -7,7 +7,8 @@ def new do
     messages: [],
     gameActive: false,
     challenged: "",
-    challenger: ""
+    challenger: "",
+    lastWinner: ""
   }
 end
 
