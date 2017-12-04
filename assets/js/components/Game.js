@@ -7,7 +7,7 @@ export default class Game extends React.Component {
     super(props)
     this.state = this.props.state
     this.props.channel.on("start", this.start.bind(this))
-    this.props.channel.on("place", this.place.bind(this))
+    this.props.channel.on("state", this.set_state.bind(this))
   }
 
   start(state) {
@@ -15,14 +15,14 @@ export default class Game extends React.Component {
     this.setState(state);
   }
 
-  place(state) {
+  set_state(state) {
     this.setState(state);
   }
 
   accept() {
     this.props.channel.push('accept', {})
       .receive("ok", state => {
-        this.place(state);
+        this.set_state(state);
       })
   }
 
@@ -32,12 +32,22 @@ export default class Game extends React.Component {
 
   }
 
-  clickCell(cellKey){
-    console.log(cellKey)
-    if (this.state.started) {
+  clickYours(cellKey){
 
+    if (!this.state.started)
+    {
+      this.props.channel.push("click", {key: cellKey})
+        .receive("ok", state => {this.set_state(state)})
     }
-    else {
+
+  }
+
+  clickTheirs(cellKey){
+
+    if (this.state.started)
+    {
+      this.props.channel.push("click", {key: cellKey})
+        .receive("ok", state => {this.set_state(state)})
     }
   }
 
@@ -48,10 +58,16 @@ export default class Game extends React.Component {
 
   render() {
     var page = null;
-
+    var directions = null;
+    if (this.state.ships_to_place.length > 0) {
     var directions = this.state.horizontal ? <p>Placing ship of length {this.state.ships_to_place[0]} horizontally. Click leftmost cell of ship on your grid to place.</p>
   : <p>Placing ship of length {this.state.ships_to_place[0]} vertically. Click uppermost cell of ship on your grid to place.</p>
-    var placement = this.state.started ? null :
+  }
+  else {
+    directions = <p>Waiting for other player to place ships</p>
+  }
+
+var placement = this.state.started ? <h3 className="text-center">Turn: {this.state.turn}</h3> :
     <div>
       <form>
         <div className="radio">
@@ -78,10 +94,10 @@ export default class Game extends React.Component {
           <div>{placement}</div>
           <div className="row">
         <div className="col-xs-6">
-            <Table id={"Your"}  ships={this.state.ships} hits={this.state.their_hits} misses={this.state.their_misses} click={this.clickCell.bind(this)}/>
+            <Table  name={window.user_name} sunk={this.state.your_sunk}  ships={this.state.ships} hits={this.state.their_hits} misses={this.state.their_misses} click={this.clickYours.bind(this)}/>
         </div>
         <div className="col-xs-6">
-          <Table id={"Their"} hits={this.state.your_hits} misses={this.state.your_misses} click={this.clickCell.bind(this)}/>
+          <Table  name={this.state.opponent} sunk={this.state.their_sunk} hits={this.state.your_hits} misses={this.state.your_misses} click={this.clickTheirs.bind(this)}/>
         </div>
     </div>
 </div>

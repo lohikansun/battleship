@@ -6,6 +6,8 @@ defmodule Battleship.Player do
       ships: [],
       hits: [],
       misses: [],
+      sunk: 0,
+      turn_over: false,
       horizontal: true
     }
 end
